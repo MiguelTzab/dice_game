@@ -11,7 +11,7 @@
     </v-app-bar>
 
     <v-main>
-      <DiceGame />
+      <dice-game />
     </v-main>
   </v-app>
 </template>
@@ -31,3 +31,9 @@ export default {
   }),
 };
 </script>
+
+<style>
+.w-100 {
+  width: 100%;
+}
+</style>
