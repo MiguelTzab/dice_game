@@ -4,12 +4,25 @@
       <v-col cols="12">
         <v-card class="mx-auto mt-3">
           <v-card-text>
-            <players-list
-              :players="players"
-              @hasPlayers="(val) => (hasPlayers = val)"
-              @addPlayer="onAddPlayer"
-              @removePlayer="onRemovePlayer"
-            />
+            <v-container fluid>
+              <v-row>
+                <v-col cols="2">
+                  <players-list
+                    :players="players"
+                    @hasPlayers="(val) => (hasPlayers = val)"
+                    @addPlayer="onAddPlayer"
+                    @removePlayer="onRemovePlayer"
+                  />
+                </v-col>
+                <v-col cols="10">
+                  <dices-list
+                    :dices="dices"
+                    @addDice="onAddDice"
+                    @removeDice="onRemoveDice"
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
           </v-card-text>
           <v-fab-transition>
             <v-tooltip top>
@@ -46,12 +59,14 @@
 </template>
 
 <script>
+import DicesList from "./DicesList.vue";
 import PlayersList from "./PlayersList";
 export default {
-  components: { PlayersList },
+  components: { PlayersList, DicesList },
   name: "DiceGame",
   data: () => ({
     players: [],
+    dices: [],
     hasPlayers: false,
     showSnackbar: false,
     currentTurn: 0,
@@ -81,6 +96,16 @@ export default {
         return player;
       });
     },
+    onAddDice(sides) {
+      this.dices.push({
+        sides: sides,
+        side_number: 0,
+        prev_side_number: null,
+      });
+    },
+    onRemoveDice(index) {
+      this.dices.splice(index, 1);
+    },
     onRoll() {
       this.currentTurn = this.getNextTurn(this.currentTurn);
     },
@@ -91,7 +116,7 @@ export default {
   },
   computed: {
     canRollDices() {
-      return this.players.length > 0;
+      return this.players.length > 0 && this.dices.length > 0;
     },
   },
   watch: {
