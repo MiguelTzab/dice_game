@@ -37,6 +37,7 @@
                   class="play-btn"
                   v-bind="attrs"
                   v-on="on"
+                  :disabled="rolling"
                   @click="onRoll"
                 >
                   <v-icon>mdi-dice-multiple-outline</v-icon>
@@ -165,6 +166,8 @@ export default {
 
       this.players[playerIndex].score = sumSides;
       this.players[playerIndex].globlaScore += sumSides;
+
+      await this.waitAnimation();
 
       this.currentTurn = this.getNextTurn(this.currentTurn);
     },
