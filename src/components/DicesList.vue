@@ -20,20 +20,23 @@
       </v-toolbar>
       <v-card-text>
         <v-item-group>
-          <v-row>
-            <v-col md="2" v-for="(item, i) in dices" :key="i">
-              <v-item>
-                <dice
-                  :dice="item"
-                  :disabled="disabled"
-                  @remove="onRemoveDice(i)"
-                />
-              </v-item>
-            </v-col>
-          </v-row>
+          <v-fade-transition>
+            <v-row v-if="!rolling">
+              <v-col md="2" v-for="(item, i) in dices" :key="i">
+                <v-item>
+                  <dice
+                    :dice="item"
+                    :disabled="disabled"
+                    @remove="onRemoveDice(i)"
+                  />
+                </v-item>
+              </v-col>
+            </v-row>
+          </v-fade-transition>
         </v-item-group>
       </v-card-text>
     </v-card>
+
     <add-dice
       v-if="showDiceForm"
       @cancel="onCancelAddDice"
@@ -55,6 +58,7 @@ export default {
   props: {
     dices: Array,
     disabled: Boolean,
+    rolling: Boolean,
   },
   data: () => ({
     showDiceForm: false,

@@ -1,5 +1,9 @@
 <template>
-  <v-card class="mx-auto w-100" elevation="2">
+  <v-card
+    class="mx-auto w-100"
+    elevation="2"
+    v-bind:class="{ 'bg-blue': showShadow }"
+  >
     <v-list-item three-line>
       <v-list-item-content>
         <v-hover v-slot="{ hover }" :disabled="disabled">
@@ -47,5 +51,16 @@ export default {
       this.$emit("remove", this.player.name);
     },
   },
+  computed: {
+    showShadow() {
+      return this.player.turn && this.disabled;
+    },
+  },
 };
 </script>
+
+<style scoped>
+.bg-blue {
+  background-color: #bbdefb;
+}
+</style>

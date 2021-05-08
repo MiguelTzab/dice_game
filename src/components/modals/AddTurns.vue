@@ -12,7 +12,7 @@
                 <v-text-field
                   v-model="turns"
                   :rules="turnsRules"
-                  label="Numero de turnos por jugador"
+                  label="Número de lanzamientos por jugador"
                   ref="turns"
                   required
                 ></v-text-field>
@@ -43,7 +43,7 @@ export default {
     turns: 1,
     turnsRules: [
       (v) => !!v || "Campo requerido",
-      (v) => v >= 1 || "El número de turnos debe ser mayor a 0",
+      (v) => v >= 1 || "El número de lanzamientos debe ser mayor a 0",
       (v) => v <= 100 || "El número no puede ser mayor a 100",
     ],
   }),

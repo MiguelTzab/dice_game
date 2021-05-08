@@ -21,6 +21,7 @@
                     :disabled="playing"
                     @addDice="onAddDice"
                     @removeDice="onRemoveDice"
+                    :rolling="rolling"
                   />
                 </v-col>
               </v-row>
@@ -60,7 +61,7 @@
                   <v-icon>mdi-play</v-icon>
                 </v-btn>
               </template>
-              <span>Comenzar</span>
+              <span>Play</span>
             </v-tooltip>
           </v-fab-transition>
           <v-snackbar
@@ -98,6 +99,7 @@ export default {
     showSnackbar: false,
     showTurnsForm: false,
     showWinner: false,
+    rolling: false,
     winner: undefined,
     playing: false,
     players: [],
@@ -145,8 +147,8 @@ export default {
     onCancelTurn() {
       this.showTurnsForm = false;
     },
-    onRoll() {
-      if (this.numTurns == 1) this.gameOver();
+    async onRoll() {
+      this.rolling = true;
       let sumSides = 0;
       this.dices.forEach((dice) => {
         const side_number = this.getNextSide(dice.sides, dice.side_number);
@@ -157,15 +159,25 @@ export default {
       const playerIndex = this.players.findIndex(
         (player) => player.turn == true
       );
+      //make time for transition
+      await this.waitAnimation();
+      this.rolling = false;
+
       this.players[playerIndex].score = sumSides;
       this.players[playerIndex].globlaScore += sumSides;
+
       this.currentTurn = this.getNextTurn(this.currentTurn);
     },
+    waitAnimation() {
+      return new Promise(function(resolve) {
+        setTimeout(resolve, 1000);
+      });
+    },
     gameOver() {
-      const winner = this.players.sort(
-        (a, b) => a.globlaScore - b.globlaScore
-      )[0];
-      this.winner = winner;
+      const winner = this.players
+        .map((player) => player)
+        .sort((a, b) => a.globlaScore - b.globlaScore);
+      this.winner = winner[winner.length - 1];
       this.showWinner = true;
     },
     onStart() {
@@ -201,6 +213,9 @@ export default {
     currentTurn: function(newTurn, oldTurn) {
       this.players[oldTurn].turn = false;
       this.players[newTurn].turn = true;
+    },
+    numTurns: function(newTurn) {
+      if (newTurn == 0) this.gameOver();
     },
   },
 };
