@@ -4,7 +4,16 @@
       <v-toolbar>
         <v-toolbar-title>Jugadores</v-toolbar-title>
         <v-fab-transition>
-          <v-btn fab dark small absolute bottom right @click="onAddPlayer">
+          <v-btn
+            color="primary"
+            fab
+            small
+            absolute
+            bottom
+            right
+            :disabled="disabled"
+            @click="onAddPlayer"
+          >
             <v-icon>mdi-account-plus</v-icon>
           </v-btn>
         </v-fab-transition>
@@ -18,7 +27,11 @@
         >
           <template v-slot:default="{ item }">
             <v-list-item>
-              <player :player="item" @remove="onRemovePlayer" />
+              <player
+                :player="item"
+                :disabled="disabled"
+                @remove="onRemovePlayer"
+              />
             </v-list-item>
           </template>
         </v-virtual-scroll>
@@ -44,6 +57,7 @@ export default {
   },
   props: {
     players: Array,
+    disabled: Boolean,
   },
   data: () => ({
     showPlayerForm: false,

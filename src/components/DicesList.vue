@@ -4,24 +4,34 @@
       <v-toolbar>
         <v-toolbar-title>Dados</v-toolbar-title>
         <v-fab-transition>
-          <v-btn fab dark small absolute bottom right @click="onAddDice">
+          <v-btn
+            color="primary"
+            fab
+            small
+            absolute
+            bottom
+            right
+            :disabled="disabled"
+            @click="onAddDice"
+          >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </v-fab-transition>
       </v-toolbar>
       <v-card-text>
-        <v-virtual-scroll
-          :items="dices"
-          :item-height="140"
-          height="400"
-          class="mt-3"
-        >
-          <template v-slot:default="{ item, index }">
-            <v-list-item>
-              <dice :dice="item" @remove="onRemoveDice(index)" />
-            </v-list-item>
-          </template>
-        </v-virtual-scroll>
+        <v-item-group>
+          <v-row>
+            <v-col md="2" v-for="(item, i) in dices" :key="i">
+              <v-item>
+                <dice
+                  :dice="item"
+                  :disabled="disabled"
+                  @remove="onRemoveDice(i)"
+                />
+              </v-item>
+            </v-col>
+          </v-row>
+        </v-item-group>
       </v-card-text>
     </v-card>
     <add-dice
@@ -44,6 +54,7 @@ export default {
   },
   props: {
     dices: Array,
+    disabled: Boolean,
   },
   data: () => ({
     showDiceForm: false,

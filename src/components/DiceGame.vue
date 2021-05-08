@@ -9,6 +9,7 @@
                 <v-col cols="2">
                   <players-list
                     :players="players"
+                    :disabled="playing"
                     @hasPlayers="(val) => (hasPlayers = val)"
                     @addPlayer="onAddPlayer"
                     @removePlayer="onRemovePlayer"
@@ -17,6 +18,7 @@
                 <v-col cols="10">
                   <dices-list
                     :dices="dices"
+                    :disabled="playing"
                     @addDice="onAddDice"
                     @removeDice="onRemoveDice"
                   />
@@ -24,15 +26,14 @@
               </v-row>
             </v-container>
           </v-card-text>
-          <v-fab-transition>
+          <v-fab-transition v-if="canRollDices">
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
+                  color="primary"
                   fab
                   large
-                  dark
                   class="play-btn"
-                  :disabled="!canRollDices"
                   v-bind="attrs"
                   v-on="on"
                   @click="onRoll"
@@ -41,6 +42,25 @@
                 </v-btn>
               </template>
               <span>Lanzar dados</span>
+            </v-tooltip>
+          </v-fab-transition>
+          <v-fab-transition v-else>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="primary"
+                  fab
+                  large
+                  class="play-btn"
+                  v-bind="attrs"
+                  :disabled="!canStart"
+                  v-on="on"
+                  @click="onStart"
+                >
+                  <v-icon>mdi-play</v-icon>
+                </v-btn>
+              </template>
+              <span>Comenzar</span>
             </v-tooltip>
           </v-fab-transition>
           <v-snackbar
@@ -52,6 +72,9 @@
           >
             {{ message }}
           </v-snackbar>
+          <instructions />
+          <add-turns v-if="showTurnsForm" @save="onSaveTurn" />
+          <winner v-if="showWinner" :winner="winner.name" />
         </v-card>
       </v-col>
     </v-row>
@@ -61,15 +84,24 @@
 <script>
 import DicesList from "./DicesList.vue";
 import PlayersList from "./PlayersList";
+import Instructions from "./modals/Instructions";
+import AddTurns from "./modals/AddTurns";
+import Winner from "./modals/Winner";
+
 export default {
-  components: { PlayersList, DicesList },
+  components: { PlayersList, DicesList, Instructions, AddTurns, Winner },
   name: "DiceGame",
   data: () => ({
-    players: [],
-    dices: [],
+    currentTurn: 0,
+    numTurns: null,
     hasPlayers: false,
     showSnackbar: false,
-    currentTurn: 0,
+    showTurnsForm: false,
+    showWinner: false,
+    winner: undefined,
+    playing: false,
+    players: [],
+    dices: [],
     message: "",
   }),
   methods: {
@@ -100,22 +132,68 @@ export default {
       this.dices.push({
         sides: sides,
         side_number: 0,
-        prev_side_number: null,
       });
     },
     onRemoveDice(index) {
       this.dices.splice(index, 1);
     },
+    onSaveTurn(turn) {
+      this.numTurns = turn;
+      this.playing = true;
+      this.onCancelTurn();
+    },
+    onCancelTurn() {
+      this.showTurnsForm = false;
+    },
     onRoll() {
+      if (this.numTurns == 1) this.gameOver();
+      let sumSides = 0;
+      this.dices.forEach((dice) => {
+        const side_number = this.getNextSide(dice.sides, dice.side_number);
+        dice.side_number = side_number;
+        sumSides += side_number;
+        return dice;
+      });
+      const playerIndex = this.players.findIndex(
+        (player) => player.turn == true
+      );
+      this.players[playerIndex].score = sumSides;
+      this.players[playerIndex].globlaScore += sumSides;
       this.currentTurn = this.getNextTurn(this.currentTurn);
     },
+    gameOver() {
+      const winner = this.players.sort(
+        (a, b) => a.globlaScore - b.globlaScore
+      )[0];
+      this.winner = winner;
+      this.showWinner = true;
+    },
+    onStart() {
+      this.showTurnsForm = true;
+    },
     getNextTurn(turn) {
-      if (turn == this.players.length - 1) return 0;
-      else return turn + 1;
+      if (turn == this.players.length - 1) {
+        this.numTurns -= 1;
+        return 0;
+      } else return turn + 1;
+    },
+    getNextSide(numSides, oldSide) {
+      let side = null;
+      do {
+        side = this.getRandom(numSides);
+      } while (side == oldSide);
+      return side;
+    },
+    getRandom(max) {
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - 1 + 1)) + 1;
     },
   },
   computed: {
     canRollDices() {
+      return this.canStart && this.playing;
+    },
+    canStart() {
       return this.players.length > 0 && this.dices.length > 0;
     },
   },

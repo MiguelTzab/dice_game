@@ -2,7 +2,7 @@
   <v-card class="mx-auto w-100" elevation="2">
     <v-list-item three-line>
       <v-list-item-content>
-        <v-hover v-slot="{ hover }">
+        <v-hover v-slot="{ hover }" :disabled="disabled">
           <v-list-item-title class="title mb-1">
             {{ player.name }}
             <v-list-item-icon v-if="hover">
@@ -39,6 +39,7 @@ export default {
   name: "Player",
   props: {
     player: Object,
+    disabled: Boolean,
   },
   data: () => ({}),
   methods: {
