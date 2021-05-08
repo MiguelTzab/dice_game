@@ -6,7 +6,7 @@
           <v-card-text>
             <v-container fluid>
               <v-row>
-                <v-col cols="2">
+                <v-col cols="3">
                   <players-list
                     :players="players"
                     :disabled="playing"
@@ -15,7 +15,7 @@
                     @removePlayer="onRemovePlayer"
                   />
                 </v-col>
-                <v-col cols="10">
+                <v-col cols="9">
                   <dices-list
                     :dices="dices"
                     :disabled="playing"
